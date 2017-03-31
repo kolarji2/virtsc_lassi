@@ -34,8 +34,8 @@ def compute_similarity_features(U,invS,V,molecule,weight,descNames,screen_option
     frags=features.get_fragments_from_molecule(molecule,screen_option['fragments'])
     smiles_list=[]
     for item in frags:
-        if item['smiles'] not in smiles_list:
-            smiles_list.append(item['smiles'])
+        #if item['smiles'] not in smiles_list:
+        smiles_list.append(item['smiles'])
     cos_max=0
     if len(smiles_list)>0:
         for smiles in smiles_list:
