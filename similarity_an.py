@@ -37,18 +37,20 @@ def compute_similarity_features(U,invS,V,molecule,weight,descNames,screen_option
         if item['smiles'] not in smiles_list:
             smiles_list.append(item['smiles'])
     cos_max=0
-    for smiles in smiles_list:
-        if smiles not in _similarity_library:
-            frag = features.get_molecule_from_frag_smiles(str(smiles))
-            dict=descriptors.get_RDkit_Desc(frag)
-            if dict==None:
-                log.error("Can not compute descriptors")
-            curr_cos=compute_similarity_vector(U,invS,V,dict,weight,descNames)
-            _similarity_library[smiles]=curr_cos
-        else:
-            curr_cos=_similarity_library[smiles]
-        cos_max+=curr_cos
-    return cos_max/len(smiles_list)
+    if len(smiles_list)>0:
+        for smiles in smiles_list:
+            if smiles not in _similarity_library:
+                frag = features.get_molecule_from_frag_smiles(str(smiles))
+                dict=descriptors.get_RDkit_Desc(frag)
+                if dict==None:
+                    log.error("Can not compute descriptors")
+                curr_cos=compute_similarity_vector(U,invS,V,dict,weight,descNames)
+                _similarity_library[smiles]=curr_cos
+            else:
+                curr_cos=_similarity_library[smiles]
+            cos_max+=curr_cos
+        return cos_max/len(smiles_list)
+    return -1
 
 
 def compute_similarity_vector(U,invS,V,dict,weight,descNames):
