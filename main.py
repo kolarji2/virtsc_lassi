@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 def main():
     root_directory = os.path.dirname(os.path.realpath(__file__))
     output_dest = 'results'
+    weight_fn_info = ""
     #root_directory = '/home/jiri/mff_vs/virtsc_lassi'
     #for config_file in sys.argv[1:]:
     if args.config_file != "" and args.config_file is not None:
@@ -44,10 +45,10 @@ def main():
             configuration = json.load(input_stream)
             if ('lw' in configuration):
                 settings.local_weight_function = configuration['lw']
+                weight_fn_info+=" lw: "+configuration['lw']
             if ('gw' in configuration):
                 settings.global_weight_function = configuration['gw']
-            if ('morgan' in configuration):
-                settings.morgan_radius = configuration['morgan']
+                weight_fn_info += " gw: " + configuration['gw']
     if args.selection_file != "" and args.selection_file is not None:
         with open(root_directory + '/' + args.selection_file) as input_stream:
             configuration = json.load(input_stream)
@@ -62,6 +63,7 @@ def main():
         screen_info=args.method
         if args.method!='descriptors':
             screen_info+=' '+args.fragment_types
+        screen_info+=weight_fn_info
         screen.recursive_screen(args.directory,args.output_directory,recognize_option,screen_option,screen_info)
 
 if __name__ == 'virtsc_lassi':
