@@ -33,19 +33,8 @@ def compare(input_path_set,output_path,recognize_option,screen_option):
 
     #prepare PaDel descriptors
     if screen_option['descriptors']=='padel':
-        descriptors.init_library(screen_option['padel-path'])
-        if recognize_option['recognize_sets']:
-            known_ligands_path_padel=known_ligands_path[:-21]+'known-ligands.padel.csv'
-            data_path_padel=data_path[:-12]+'data.padel.csv'
-        else:
-            known_ligands_path_padel=known_ligands_path[:-4]+'.padel.csv'
-            data_path_padel=data_path[:-4]+'.padel.csv'
-        if not os.path.isfile(known_ligands_path_padel):
-            descriptors._desc_lib.generate_padel_desc(known_ligands_path,known_ligands_path_padel)
-        if not os.path.isfile(data_path_padel):
-            descriptors._desc_lib.generate_padel_desc(data_path,data_path_padel)
-        descriptors._desc_lib.load_padel_desc_file(known_ligands_path_padel)
-        descriptors._desc_lib.load_padel_desc_file(data_path_padel)
+        descriptors.init_library(ligands_path,data_path,screen_option,recognize_option)
+
     '''
     if screen_option['method'] == 'features':
         descriptors.init_library(screen_option['padel-path'])

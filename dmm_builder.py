@@ -36,8 +36,7 @@ def build_feature_matrix(file_path,screen_option):
     '''
 
     log.info('Building Descriptor-Feature matrix...')
-    frag_json=features.fragments_extraction(file_path,screen_option['fragments'])
-    desc_csv=features.descriptors_extraction(frag_json,screen_option['descriptors'],screen_option['padel-path'])
+    desc_csv=features.generate_feature_desc(file_path,"",screen_option)
     mol_lib=io.load_padel_desc_file(desc_csv)
     #descriptors.desc_library_load_desc_file(desc_csv)
     descNames = {}

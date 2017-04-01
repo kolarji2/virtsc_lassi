@@ -12,6 +12,7 @@ from rdkit.Chem.Pharm2D import Gobbi_Pharm2D,Generate
 
 
 import io
+import features
 import os
 import subprocess
 
@@ -38,6 +39,8 @@ def get_desc(molecule,screen_option):
         return get_descriptors(molecule,screen_option['descriptors'])
     elif screen_option['method'] == 'pharm2d':
         return get_pharmacofores(molecule)
+    elif screen_option['method'] == 'features':
+        return get_descriptors(molecule,screen_option['descriptors'])
     else:
         log.error("Can not generate descriptors, unknown option!")
     return None
@@ -46,7 +49,7 @@ def get_descriptors(molecule,type):
     if type=='rdkit':
         return get_RDkit_Desc(molecule)
     elif type=='padel':
-        return get_Padel_Desc(molecule)
+        return _desc_lib.get_desc(molecule)
     return None
 
 
@@ -123,17 +126,48 @@ store all descriptors in dictionary with smiles as keys
 _desc_lib=None
 _library_rdy=False
 
-def init_library(padel_path):
+def init_library(ligands_path,data_path,screen_option,recognize_option):
     global _desc_lib
     global _library_rdy
     _library_rdy=True
-    _desc_lib=desc_library(padel_path)
+    padel_path=screen_option['padel-path']
+    _desc_lib = desc_library(padel_path)
+    if screen_option['method']=='features':
+        init_feature_library(ligands_path,data_path,screen_option,recognize_option)
+    else:
+        init_molecule_library(ligands_path,data_path,screen_option,recognize_option)
 
-def padel_generate_desc(file_path,padel_output):
-    global desc_lib
-    global lib_rdy
-    if not lib_rdy:
-        log.error("Padel not rdy, you have to set path to padel and initialize it by calling init_padel.")
+def init_feature_library(ligands_path,data_path,screen_option,recognize_option):
+    global _desc_lib
+    if recognize_option['recognize_sets']:
+        ligands_path_padel = ligands_path[:-21] + 'ligands.frags.csv'
+        data_path_padel = data_path[:-12] + 'data.frags.csv'
+    else:
+        ligands_path_padel = ligands_path[:-4] + '.frags.csv'
+        data_path_padel = data_path[:-4] + '.frags.csv'
+    if not os.path.isfile(ligands_path_padel):
+        print(ligands_path_padel)
+        ligands_path_padel=features.generate_feature_desc(ligands_path,ligands_path_padel, screen_option)
+        print(ligands_path_padel)
+    if not os.path.isfile(data_path_padel):
+        data_path_padel=features.generate_feature_desc(data_path,data_path_padel, screen_option)
+    _desc_lib.load_padel_desc_file(ligands_path_padel)
+    _desc_lib.load_padel_desc_file(data_path_padel)
+
+def init_molecule_library(ligands_path,data_path,screen_option,recognize_option):
+    global _desc_lib
+    if recognize_option['recognize_sets']:
+        ligands_path_padel = ligands_path[:-21] + 'ligands.padel.csv'
+        data_path_padel = data_path[:-12] + 'data.padel.csv'
+    else:
+        ligands_path_padel = ligands_path[:-4] + '.padel.csv'
+        data_path_padel = data_path[:-4] + '.padel.csv'
+    if not os.path.isfile(ligands_path_padel):
+        _desc_lib.generate_padel_desc(ligands_path, ligands_path_padel)
+    if not os.path.isfile(data_path_padel):
+        _desc_lib.generate_padel_desc(data_path, data_path_padel)
+    _desc_lib.load_padel_desc_file(ligands_path_padel)
+    _desc_lib.load_padel_desc_file(data_path_padel)
 
 
 class desc_library:
