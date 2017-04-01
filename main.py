@@ -60,10 +60,12 @@ def main():
                        'padel-path':'padel',
                        'fragments':io.parseFragmentTypes(args.fragment_types),
                        'descriptors': args.descriptors_generator,
-                       'cos_th' : 0.6}
+                       'cos_th' : args.threshold_similarity}
         screen_info=args.method
         if args.method!='descriptors':
             screen_info+=' '+args.fragment_types
+        if args.method=='features':
+            screen_info+='th_sim: '+args.threshold_similarity.__str__()
         screen_info+=weight_fn_info
         screen.recursive_screen(args.directory,args.output_directory,recognize_option,screen_option,screen_info)
 
@@ -98,5 +100,9 @@ if __name__ == 'virtsc_lassi':
                         help="Generator to be used to obtain fragments descriptors. Allowed values are [rdkit|padel]",
                         choices=['rdkit', 'padel'],
                         default="rdkit")
+    parser.add_argument("-ths", "--threshold-similarity",
+                        help="Threshold for fraction of compared molecules, for features only",
+                        type=float,
+                        default=-1.0)
     args = parser.parse_args()
     main()
