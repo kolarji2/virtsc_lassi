@@ -99,4 +99,4 @@ def recursive_screen(root_data_dir,root_result_dir,recognize_option,screen_optio
         vrc_auc = vrc_auc / tot - (avg_auc * avg_auc)
         log.info("Average AUC: %.3f +- %.3f", avg_auc, vrc_auc)
         with open(avr_result_path +collection_name+'resultingAUC.csv', 'a') as output_stream:
-             output_stream.write("{0:f}, {1:f}, {2:s}, {3:d}, {4:s} \n".format(avg_auc, vrc_auc, collection_name+'/'+set_name,tot,screen_info))
+             output_stream.write("{0:s}, {1:s}, {2:f}, {3:f}, {4:d}, {5:s} \n".format(collection_name, set_name, avg_auc, vrc_auc, tot,screen_info))
