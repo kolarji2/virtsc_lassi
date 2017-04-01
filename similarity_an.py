@@ -16,20 +16,20 @@ log=logging.getLogger(__name__)
 _similarity_library={}
 
 
-def compute_similarity(U,invS,V,molecule,weight,descNames,screen_option):
+def compute_similarity(U,invS,V,molecule,weight,dw,descNames,screen_option):
     if screen_option['method']=='features':
-        return compute_similarity_features(U,invS,V,molecule,weight,descNames,screen_option)
+        return compute_similarity_features(U,invS,V,molecule,weight,dw,descNames,screen_option)
     else:
-        return compute_similarity_molecules(U,invS,V,molecule,weight,descNames,screen_option)
+        return compute_similarity_molecules(U,invS,V,molecule,weight,dw,descNames,screen_option)
 
-def compute_similarity_molecules(U,invS,V,molecule,weight,descNames,screen_option):
+def compute_similarity_molecules(U,invS,V,molecule,weight,dw,descNames,screen_option):
     z = np.zeros(len(descNames))
     dict = descriptors.get_desc(molecule, screen_option)
     if dict == None:
         return None
-    return compute_similarity_vector(U,invS,V,dict,weight,descNames)
+    return compute_similarity_vector(U,invS,V,dict,weight,dw,descNames)
 
-def compute_similarity_features(U,invS,V,molecule,weight,descNames,screen_option):
+def compute_similarity_features(U,invS,V,molecule,weight,dw,descNames,screen_option):
 
     frags=features.get_fragments_from_molecule(molecule,screen_option['fragments'])
     smiles_list=[]
@@ -46,7 +46,7 @@ def compute_similarity_features(U,invS,V,molecule,weight,descNames,screen_option
                 dict=descriptors.get_desc(frag,screen_option)
                 if dict==None:
                     log.error("Can not compute descriptors")
-                curr_cos=compute_similarity_vector(U,invS,V,dict,weight,descNames)
+                curr_cos=compute_similarity_vector(U,invS,V,dict,weight,dw,descNames)
                 _similarity_library[smiles]=curr_cos
             else:
                 curr_cos=_similarity_library[smiles]
@@ -57,12 +57,12 @@ def compute_similarity_features(U,invS,V,molecule,weight,descNames,screen_option
     return -1
 
 
-def compute_similarity_vector(U,invS,V,dict,weight,descNames):
+def compute_similarity_vector(U,invS,V,dict,weight,dw,descNames):
     z = np.zeros(len(descNames))
     for key, value in dict.iteritems():
         if (key in descNames):
             di = descNames[key]
-            z[di] = get_lw(value) * weight[di]
+            z[di] = get_lw(value,dw[di]) * weight[di]
     cos_max = -1
     x = np.dot(z.transpose(), np.dot(U, invS))
     for j in range(V.shape[0]):
@@ -76,30 +76,33 @@ def compute_similarity_vector(U,invS,V,dict,weight,descNames):
 def compute_weighted_dmm(dmm):
     wdmm=dmm
     weight=[]
+    dw=[]
     n=dmm.shape[1]
     for i in range(dmm.shape[0]):
         total_freq_i=0
-        max_freq_i=0
+        min=np.nanmin(dmm[i,:])
+        max=np.nanmax(dmm[i,:])
         for j in range(dmm.shape[1]):
-            if (abs(dmm[i,j])>max_freq_i):
-                max_freq_i=abs(dmm[i,j])
             if (abs(dmm[i,j])>0):
                 total_freq_i+=abs(dmm[i,j]);
         #weighting functions
-        weight.append(get_gw(dmm[i,:],total_freq_i,max_freq_i))
+        weight.append(get_gw(dmm[i,:],total_freq_i,max-min))
+        dw.append(min)
 
     for i in range(wdmm.shape[0]):
         for j in range(wdmm.shape[1]):
-            wdmm[i,j]=weight[i]*get_lw(dmm[i, j])
-    return [wdmm,weight]
+            wdmm[i,j]=weight[i]*get_lw(dmm[i, j],dw[i])
+    return [wdmm,weight,dw]
 
 
-def get_lw(tfij):
+def get_lw(tfij,dwi):
     #return value of local weight function according to global settings
     if settings.local_weight_function=='log':
         return get_logw(tfij)
     elif settings.local_weight_function == 'binary':
         return get_binaryw(tfij)
+    elif settings.global_weight_function == 'max':
+        return tfij-dwi
     else: # 'tf=default'
         return tfij
 

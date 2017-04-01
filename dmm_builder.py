@@ -53,7 +53,7 @@ def build_feature_matrix(file_path,screen_option):
         smiles_list.append(smiles)
     dfm=make_matrix(dictList,descNames)
     
-    [wdfm, weight] = similarity_an.compute_weighted_dmm(np.copy(dfm))
+    [wdfm, weight,dw] = similarity_an.compute_weighted_dmm(np.copy(dfm))
     U, S, VT = svd(wdfm, 0)
     V = VT.transpose()
 

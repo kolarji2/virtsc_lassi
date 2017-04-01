@@ -48,7 +48,7 @@ def compare(input_path_set,output_path,recognize_option,screen_option):
     #generate Descriptors-Molecules-Matrix
     descNames,dmm=dmm_builder.build_matrix(known_ligands_path,screen_option)
     #compute weighted Descriptors-Molecules-Matrix and local and global weight coefficients
-    [wdmm,weight]=similarity_an.compute_weighted_dmm(dmm)
+    [wdmm,weight,dw]=similarity_an.compute_weighted_dmm(dmm)
     log.info('Number of analysed descriptors: %i', len(descNames))
     #compute Singular Value decomposition
     k = -1  # use all singular values
@@ -57,7 +57,7 @@ def compare(input_path_set,output_path,recognize_option,screen_option):
     ligands_set=io.load_Molecules(ligands_path)
     io.create_parent_directory(output_path)
     with open(output_path + '/result.csv', 'w') as output_stream:
-        compareData(U,S,VT,weight,data_path,descNames,output_stream,screen_option)
+        compareData(U,S,VT,weight,dw,data_path,descNames,output_stream,screen_option)
     #with open(output_path + '/ligands.csv', 'w') as output_stream:
     #    compareData(U,S,VT,ligands_path,output_stream)
     with open(output_path + '/result.csv', 'r') as input_stream:
@@ -81,7 +81,7 @@ def compare(input_path_set,output_path,recognize_option,screen_option):
                 i=i+1
     return auc
 
-def compareData(U,S,VT,weight,data_path,descNames,output_stream,screen_option):
+def compareData(U,S,VT,weight,dw,data_path,descNames,output_stream,screen_option):
     '''
     Compute similarity of molecules in data_path to known actives
     :param U,S,VT,file_path:
@@ -105,7 +105,7 @@ def compareData(U,S,VT,weight,data_path,descNames,output_stream,screen_option):
                 stopwatch=time.clock()
                 percent+=0.3
             molecule=io.next_smile_molecule(mol_stream)
-            cos_max=similarity_an.compute_similarity(U,invS,V,molecule,weight,descNames,screen_option)
+            cos_max=similarity_an.compute_similarity(U,invS,V,molecule,weight,dw,descNames,screen_option)
             if cos_max == None:
                 log.error("Wrong molecule")
                 continue
