@@ -101,9 +101,9 @@ def get_lw(tfij,dwi):
         return get_logw(tfij)
     elif settings.local_weight_function == 'binary':
         return get_binaryw(tfij)
-    elif settings.global_weight_function == 'max':
-        return tfij-dwi
     else: # 'tf=default'
+        if settings.global_weight_function == 'max':
+            return tfij - dwi
         return tfij
 
 def get_gw(dmmi,gfi,max_freq_i):
