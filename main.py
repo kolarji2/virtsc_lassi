@@ -59,7 +59,8 @@ def main():
         screen_option={'method':args.method,
                        'padel-path':'padel',
                        'fragments':io.parseFragmentTypes(args.fragment_types),
-                       'descriptors': args.descriptors_generator}
+                       'descriptors': args.descriptors_generator,
+                       'cos_th' : 0.6}
         screen_info=args.method
         if args.method!='descriptors':
             screen_info+=' '+args.fragment_types

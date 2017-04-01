@@ -38,18 +38,22 @@ def compute_similarity_features(U,invS,V,molecule,weight,descNames,screen_option
             smiles_list.append(item['smiles'])
     cos_max=0
     if len(smiles_list)>0:
+        num_frag = (int)(np.ceil(screen_option['avg_frac']*len(frags)))
+        cos_list = []
         for smiles in smiles_list:
             if smiles not in _similarity_library:
                 frag = features.get_molecule_from_frag_smiles(str(smiles))
-                dict=descriptors.get_desc(frag)
+                dict=descriptors.get_desc(frag,screen_option)
                 if dict==None:
                     log.error("Can not compute descriptors")
                 curr_cos=compute_similarity_vector(U,invS,V,dict,weight,descNames)
                 _similarity_library[smiles]=curr_cos
             else:
                 curr_cos=_similarity_library[smiles]
-            cos_max+=curr_cos
-        return cos_max/len(smiles_list)
+            cos_list.append(curr_cos)
+        sorted_cos_list=np.sort(cos_list)
+        cos_selected=sorted_cos_list[-num_frag:]
+        return np.average(cos_selected)
     return -1
 
 

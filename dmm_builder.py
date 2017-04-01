@@ -34,13 +34,14 @@ def build_feature_matrix(file_path,screen_option):
     :param screen_option:
     :return:
     '''
-
     log.info('Building Descriptor-Feature matrix...')
+    molecules = io.load_Molecules(file_path)
     desc_csv=features.generate_feature_desc(file_path,"",screen_option)
     mol_lib=io.load_padel_desc_file(desc_csv)
     #descriptors.desc_library_load_desc_file(desc_csv)
     descNames = {}
     dictList=[]
+    smiles_list=[]
     # first scan for used descriptors
     j = 0
     for smiles,dict in mol_lib.iteritems():
@@ -49,7 +50,48 @@ def build_feature_matrix(file_path,screen_option):
                 descNames[key] = j
                 j+=1
         dictList.append(dict)
+        smiles_list.append(smiles)
     dfm=make_matrix(dictList,descNames)
+    
+    [wdfm, weight] = similarity_an.compute_weighted_dmm(np.copy(dfm))
+    U, S, VT = svd(wdfm, 0)
+    V = VT.transpose()
+
+
+    #init library
+    local_sim_dict={}
+    for i in range(V.shape[0]):
+        vi = V[i, :]
+        cos_max = -1
+        for j in range(0,V.shape[0]):
+            if i!=j:
+                vj = V[j, :]
+                curr_cos = np.dot(vi, vj) / np.linalg.norm(vi) / np.linalg.norm(vj)
+                if cos_max<curr_cos:
+                    cos_max=curr_cos
+        local_sim_dict[smiles_list[i]]=cos_max
+
+    cos_th = screen_option['cos_th']
+    sim_num_list=[]
+    frag_num_list=[]
+    for mol in molecules:
+        frags=features.get_fragments_from_molecule(mol,screen_option['fragments'])
+        sim_num=0
+        if len(frags)>0:
+            for item in frags:
+                smiles=item['smiles']
+                if smiles not in local_sim_dict:
+                    log.error("Smiles not found in dictionary!")
+                else:
+                    if local_sim_dict[smiles]>cos_th:
+                        sim_num+=1
+            sim_num_list.append(1.0*sim_num)
+            frag_num_list.append(len(frags))
+    avg_sim=np.average(sim_num_list)
+    avg_frag=np.average(frag_num_list)
+    avg_frac=avg_sim/avg_frag
+    log.info("Avg similar fragment fraction: %.3f, with %.2f threhold",avg_frac,cos_th)
+    screen_option['avg_frac']=avg_frac
     '''
     [wdfm, weight] = similarity_an.compute_weighted_dmm(dfm)
     U, S, VT = svd(wdfm, 0)

@@ -140,7 +140,7 @@ def init_library(ligands_path,data_path,screen_option,recognize_option):
 def init_feature_library(ligands_path,data_path,screen_option,recognize_option):
     global _desc_lib
     if recognize_option['recognize_sets']:
-        ligands_path_padel = ligands_path[:-21] + 'ligands.frags.csv'
+        ligands_path_padel = ligands_path[:-15] + 'ligands.frags.csv'
         data_path_padel = data_path[:-12] + 'data.frags.csv'
     else:
         ligands_path_padel = ligands_path[:-4] + '.frags.csv'
