@@ -96,8 +96,7 @@ def recursive_screen(root_data_dir,root_result_dir,recognize_option,screen_optio
                 result_dir=root_result_dir+'/'+result_dir
             else:
                 result_dir=data_dir
-            auc=0
-            #auc=screen(data_dir,format,result_dir,recognize_option,screen_option)
+            auc=screen(data_dir,format,result_dir,recognize_option,screen_option)
             avg_auc+=auc
             vrc_auc+=auc*auc
         avg_auc=avg_auc/tot

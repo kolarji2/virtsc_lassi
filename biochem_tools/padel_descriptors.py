@@ -98,8 +98,8 @@ def compute_descriptors(input_file, output_file, use_fragments, padel_path):
          '-threads', '1',
          '-2d',
          '-dir', padel_input,
-         '-file', output_file],
-        shell=True)
+         '-file', output_file])
+        #shell=True) Me zlobilo
     thread.wait()
     logging.info('Executing PaDEL ... done')
     os.remove(padel_input)
