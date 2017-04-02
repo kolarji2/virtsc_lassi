@@ -70,7 +70,11 @@ def recursive_screen(root_data_dir,root_result_dir,recognize_option,screen_optio
     else:
         setList['default'] = files
 
-    for set_name,set in setList.items():
+    set_names=setList.keys()
+    set_names.sort()
+    for set_name in set_names:
+        print(set_name)
+        set=setList[set_name]
         collection_name = ""
         if recognize_option['recognize_collection']:
             if len(set) > 0:
@@ -92,7 +96,8 @@ def recursive_screen(root_data_dir,root_result_dir,recognize_option,screen_optio
                 result_dir=root_result_dir+'/'+result_dir
             else:
                 result_dir=data_dir
-            auc=screen(data_dir,format,result_dir,recognize_option,screen_option)
+            auc=0
+            #auc=screen(data_dir,format,result_dir,recognize_option,screen_option)
             avg_auc+=auc
             vrc_auc+=auc*auc
         avg_auc=avg_auc/tot

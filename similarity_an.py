@@ -80,13 +80,17 @@ def compute_weighted_dmm(dmm):
     n=dmm.shape[1]
     for i in range(dmm.shape[0]):
         total_freq_i=0
-        min=np.nanmin(dmm[i,:])
-        max=np.nanmax(dmm[i,:])
+        #min=np.nanmin(dmm[i,:])
+        #max=np.nanmax(dmm[i,:])
+        min=0.0
+        max_freq_i=0
         for j in range(dmm.shape[1]):
             if (abs(dmm[i,j])>0):
                 total_freq_i+=abs(dmm[i,j]);
+            if (abs(dmm[i,j])>max_freq_i):
+                max_freq_i=abs(dmm[i,j])
         #weighting functions
-        weight.append(get_gw(dmm[i,:],total_freq_i,max-min))
+        weight.append(get_gw(dmm[i,:],total_freq_i,max_freq_i))
         dw.append(min)
 
     for i in range(wdmm.shape[0]):
