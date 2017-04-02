@@ -82,6 +82,8 @@ def compute_weighted_dmm(dmm):
         total_freq_i=0
         min=np.nanmin(dmm[i,:])
         max=np.nanmax(dmm[i,:])
+        if max==min:
+            min=0.0
         max_abs=0
         for j in range(dmm.shape[1]):
             if (abs(dmm[i,j])>0):
