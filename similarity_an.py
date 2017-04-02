@@ -80,17 +80,16 @@ def compute_weighted_dmm(dmm):
     n=dmm.shape[1]
     for i in range(dmm.shape[0]):
         total_freq_i=0
-        #min=np.nanmin(dmm[i,:])
-        #max=np.nanmax(dmm[i,:])
-        min=0.0
-        max_freq_i=0
+        min=np.nanmin(dmm[i,:])
+        max=np.nanmax(dmm[i,:])
+        max_abs=0
         for j in range(dmm.shape[1]):
             if (abs(dmm[i,j])>0):
                 total_freq_i+=abs(dmm[i,j]);
-            if (abs(dmm[i,j])>max_freq_i):
-                max_freq_i=abs(dmm[i,j])
+            if (abs(dmm[i,j])>max_abs):
+                max_abs=abs(dmm[i,j])
         #weighting functions
-        weight.append(get_gw(dmm[i,:],total_freq_i,max_freq_i))
+        weight.append(get_gw(dmm[i,:],total_freq_i,max_abs,max-min))
         dw.append(min)
 
     for i in range(wdmm.shape[0]):
@@ -106,11 +105,11 @@ def get_lw(tfij,dwi):
     elif settings.local_weight_function == 'binary':
         return get_binaryw(tfij)
     else: # 'tf=default'
-        if settings.global_weight_function == 'max':
+        if settings.global_weight_function == 'max_norm':
             return tfij - dwi
         return tfij
 
-def get_gw(dmmi,gfi,max_freq_i):
+def get_gw(dmmi,gfi,max_abs,max_norm):
     #return value of global weight function according to global settings
     if settings.global_weight_function=='entropy':
         return get_entropyw(dmmi,gfi)
@@ -118,8 +117,10 @@ def get_gw(dmmi,gfi,max_freq_i):
         return get_idfyw(dmmi,gfi)
     elif settings.global_weight_function == 'normal':
         return get_normalw(dmmi,gfi)
-    elif settings.global_weight_function == 'max':
-        return 1.0/max_freq_i
+    elif settings.global_weight_function == 'max_abs':
+        return 1.0/max_abs
+    elif settings.global_weight_function == 'max_norm':
+        return 1.0/max_norm
     else: # 'binary'=default
         return 1
 

@@ -56,11 +56,13 @@ def main():
     if args.directory is not None:
         recognize_option={'recognize_sets': True,
                           'recognize_collection': True}
-        screen_option={'method':args.method,
-                       'padel-path':'padel',
-                       'fragments':io.parseFragmentTypes(args.fragment_types),
+        screen_option={'method': args.method,
+                       'padel-path': 'padel',
+                       'fragments': io.parseFragmentTypes(args.fragment_types),
                        'descriptors': args.descriptors_generator,
-                       'cos_th' : args.threshold_similarity}
+                       'cos_th': args.threshold_similarity,
+                       'lw': settings.local_weight_function,
+                       'gw': settings.global_weight_function}
         screen_info=args.method
         if args.method!='descriptors':
             screen_info+=' '+args.fragment_types
