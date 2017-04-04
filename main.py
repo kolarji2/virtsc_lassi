@@ -18,10 +18,7 @@ __email__ = "jiri1kolar@gmail.com"
 
 #logger setting
 #create file handler
-logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s [%(levelname)s] %(module)s - %(message)s',
-        datefmt='%H:%M:%S')
+settings.init_loggging()
 log = logging.getLogger(__name__)
 
 # create file handler which logs even debug messages
@@ -41,7 +38,7 @@ def main():
     #for config_file in sys.argv[1:]:
     if args.config_file != "" and args.config_file is not None:
         log.info('Loading config file: %s', args.config_file)
-        with open(root_directory + '/' + args.config_file) as input_stream:
+        with open(args.config_file) as input_stream:
             configuration = json.load(input_stream)
             if ('lw' in configuration):
                 settings.local_weight_function = configuration['lw']
