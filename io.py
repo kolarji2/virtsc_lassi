@@ -4,6 +4,7 @@
 import os
 import json
 import csv
+import random
 import fnmatch
 import logging
 import numpy as np
@@ -113,9 +114,9 @@ def prepare_selection(configuration,output_dest,root_directory):
     log.info("Preparing collection...")
     for i in range(0, len(configuration)):
         log.info("Creating selection from: %s", configuration[i]['selection'])
-        collection_path = root_directory + '/' + 'instances' + '/' + configuration[i]['collection_path']
-        selection_path = root_directory + '/' + 'instances' + '/' + configuration[i]['selection']
-        output_path = root_directory + '/' + output_dest + '/' + configuration[i]['selection']
+        collection_path = os.path.join(root_directory,'/instances',configuration[i]['collection_path'])
+        selection_path = os.path.join(root_directory,'instances',configuration[i]['selection'])
+        output_path = os.path.join(root_directory,output_dest,configuration[i]['selection'])
         selection_files = os.listdir(selection_path)
         decoys_path_tmp=""
         ligands_path_tmp=""
@@ -149,6 +150,75 @@ def prepare_selection(configuration,output_dest,root_directory):
                 save_smi_file(known_ligands_path, known_ligands_set)
                 save_smi_file(ligands_path, ligands_set)
                 save_smi_file(data_path, moleculeSet)
+
+def prepare_selection_MUV(muv_path,output_dest):
+    '''
+    prepare selection in form: MUV/???/known-ligands.smi'
+                              MUV/???/ligands.smi
+                              MUV/???/data.smi
+    :param muv_path:
+    :param output_dest:
+    :return:
+    '''
+    logging.info("Preparing collection from MUV data sets...")
+    muv_files= sorted(os.listdir(muv_path))
+    muv_data_sets={}
+    output_path=os.path.join(output_dest,'muv')
+    nknown_actives=10
+    nrandom_sets=10
+    random.seed(33)
+    for file in muv_files:
+        array=file.split('_')
+        muv_id=array[-2]
+        type=array[-1].split('.')[0]
+        if muv_id not in muv_data_sets:
+            muv_data_sets[muv_id]={}
+        muv_data_sets[muv_id][type] = file
+    for muv_id,data_set in muv_data_sets.iteritems():
+        #load data
+        print('\tProcessing set {0:s}...'.format(muv_id))
+        ligands_path=os.path.join(muv_path,data_set['actives'])
+        decoys_path=os.path.join(muv_path,data_set['decoys'])
+        ligands_set=load_molecules_from_muv_data_file(ligands_path)
+        decoys_set=load_molecules_from_muv_data_file(decoys_path)
+        for i in range(nrandom_sets):
+            zeros='00'
+            output_path_spec=os.path.join(output_path,muv_id,zeros[(i+1)//10:]+str(i+1))
+            known_ligands_path = os.path.join(output_path_spec,'known-ligands.smi')
+            ligands_path = os.path.join(output_path_spec,'ligands.smi')
+            data_path = os.path.join(output_path_spec,'data.smi')
+            known_ligands_set=[]
+            unknown_ligands_set=list(ligands_set)
+            #randomly choose known ligands
+            for j in range(nknown_actives):
+                index=int(np.floor(random.random()*len(unknown_ligands_set)))
+                known_ligands_set.append(unknown_ligands_set[index])
+                unknown_ligands_set.pop(index)
+            save_smi_file(ligands_path, ligands_set)
+            save_smi_file(known_ligands_path,known_ligands_set)
+            save_smi_file(data_path,decoys_set+unknown_ligands_set)
+        break
+
+def load_molecules_from_muv_data_file(ligands_set):
+    '''
+    file is expected to be in format
+    # PUBCHEM_COMPOUND_CID	ID	SMILES
+    22162	MUV_859_A_1	Cl.CN(C)CCOC(=O)C(c1ccccc1)C1(O)CCCC1
+    ...
+    :param ligands_set:
+    :return:
+    '''
+    molecules=[]
+    with open(ligands_set,'r') as stream:
+        lines=stream.readlines()
+        for line in lines:
+            smiles=line.split()[-1].strip()
+            if (smiles=='SMILES'):
+                continue
+            mol=Chem.MolFromSmiles(smiles)
+            if mol is not None:
+                molecules.append(mol)
+    return molecules
 
 def load_MoleculesFromSelectionSDF(selection,ligandsSet,decoysSet,info):
     '''

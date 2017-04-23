@@ -50,7 +50,9 @@ def main():
         with open(root_directory + '/' + args.selection_file) as input_stream:
             configuration = json.load(input_stream)
             io.prepare_selection(configuration, output_dest, root_directory)
-    if args.directory is not None:
+    if args.selection_muv != "" and args.selection_muv is not None:
+        io.prepare_selection_MUV(args.selection_muv,output_dest)
+    if args.directory is not None and args.directory!="":
         recognize_option={'recognize_sets': True,
                           'recognize_collection': True}
         screen_option={'method': args.method,
@@ -69,12 +71,17 @@ def main():
         screen.recursive_screen(args.directory,args.output_directory,recognize_option,screen_option,screen_info)
 
 if __name__ == 'virtsc_lassi':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("-s","--selection-file",
                         metavar='FILE',
                         default="",
                         type=str,
-                        help="Prepare selection from json file and save it in standard format to output directory.")
+                        help="Prepare selection from json file and save it in to output directory.")
+    parser.add_argument("--selection-muv",
+                        metavar='FILE',
+                        default="",
+                        type=str,
+                        help="Prepare selection from MUV directory and save it to output directory.")
     parser.add_argument("-c", "--config-file",
                         metavar='FILE',
                         type=str,
@@ -82,6 +89,7 @@ if __name__ == 'virtsc_lassi':
     parser.add_argument("-d", "--directory",
                         metavar='FILE',
                         type=str,
+                        default="",
                         help="Directory where program should look for molecule sets.")
     parser.add_argument("-od", "--output-directory",
                         metavar='FILE',
@@ -92,11 +100,14 @@ if __name__ == 'virtsc_lassi':
                         help="Optional comma separated list of fragment types to extract (eg. \"tt.3,ecfp.2\")",
                         default="ecfp.2")
     parser.add_argument("-m", "--method",
-                        help="Method of analyzing molecules. Allowed values are [fragments|descriptors|features]",
-                        choices=['fragments', 'descriptors','features','pharm2d'],
+                        help="Method of analyzing molecules. Allowed values are:\n"
+                             "\t[fragments] - each molecule is prepresented by fragment fingerprint\n"
+                             "\t[descriptors] - each molecule is represented by descriptors\n"
+                             "\t[features] - each molecule is split to fragments and each fragment is represented by descriptors",
+                        choices=['fragments', 'descriptors','features'],
                         default="fragments")
     parser.add_argument("-g", "--descriptors-generator",
-                        help="Generator to be used to obtain fragments descriptors. Allowed values are [rdkit|padel]",
+                        help="Generator to be used to obtain fragments descriptors.",
                         choices=['rdkit', 'padel'],
                         default="rdkit")
     parser.add_argument("-ths", "--threshold-similarity",

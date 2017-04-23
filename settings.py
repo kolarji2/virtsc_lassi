@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import logging
 local_weight_function=''
 global_weight_function=''
 morgan_radius=2
