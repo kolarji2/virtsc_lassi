@@ -151,7 +151,7 @@ def prepare_selection(configuration,output_dest,root_directory):
                 save_smi_file(ligands_path, ligands_set)
                 save_smi_file(data_path, moleculeSet)
 
-def prepare_selection_MUV(muv_path,output_dest):
+def prepare_selection_MUV(muv_path,output_dest,opt):
     '''
     prepare selection in form: MUV/???/known-ligands.smi'
                               MUV/???/ligands.smi
@@ -161,11 +161,14 @@ def prepare_selection_MUV(muv_path,output_dest):
     :return:
     '''
     logging.info("Preparing collection from MUV data sets...")
+    nknown_actives = opt['nligands-to-train']
+    nrandom_sets = opt['nrandom-set']
+    logging.info("\tchoosing %d random ligands as known-ligands",nknown_actives)
+    logging.info("\tgenerating %d random sets", nrandom_sets)
     muv_files= sorted(os.listdir(muv_path))
     muv_data_sets={}
     output_path=os.path.join(output_dest,'muv')
-    nknown_actives=10
-    nrandom_sets=10
+
     random.seed(33)
     for file in muv_files:
         array=file.split('_')
@@ -197,7 +200,6 @@ def prepare_selection_MUV(muv_path,output_dest):
             save_smi_file(ligands_path, ligands_set)
             save_smi_file(known_ligands_path,known_ligands_set)
             save_smi_file(data_path,decoys_set+unknown_ligands_set)
-        break
 
 def load_molecules_from_muv_data_file(ligands_set):
     '''

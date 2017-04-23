@@ -51,7 +51,9 @@ def main():
             configuration = json.load(input_stream)
             io.prepare_selection(configuration, output_dest, root_directory)
     if args.selection_muv != "" and args.selection_muv is not None:
-        io.prepare_selection_MUV(args.selection_muv,output_dest)
+        opt={'nligands-to-train':args.nligands_to_train,
+             'nrandom-set':10}
+        io.prepare_selection_MUV(args.selection_muv,output_dest,opt)
     if args.directory is not None and args.directory!="":
         recognize_option={'recognize_sets': True,
                           'recognize_collection': True}
@@ -82,6 +84,10 @@ if __name__ == 'virtsc_lassi':
                         default="",
                         type=str,
                         help="Prepare selection from MUV directory and save it to output directory.")
+    parser.add_argument("--nligands-to-train",
+                        help="Number of ligands choosen from MUV set as known-ligands",
+                        type=int,
+                        default=20)
     parser.add_argument("-c", "--config-file",
                         metavar='FILE',
                         type=str,
