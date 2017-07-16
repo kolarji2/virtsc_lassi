@@ -100,7 +100,7 @@ if __name__ == 'virtsc_lassi':
                         default="",
                         help="Output directory for results, by default results are saved in same directory as data")
     parser.add_argument("-f", "--fragment-types",
-                        help="Optional comma separated list of fragment types to extract (eg. \"tt.3,ecfp.2\")",
+                        help="Optional comma separated list of fragment types to extract (eg. \"tt.3,ecfp.2\"), special value ap.0 for atom-pairs, or tt.0 for topological torsion",
                         default="ecfp.2")
     parser.add_argument("-m", "--method",
                         help="Method of analyzing molecules. Allowed values are:\n"
