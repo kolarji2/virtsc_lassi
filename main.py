@@ -113,9 +113,9 @@ if __name__ == 'virtsc_lassi':
                         help="Generator to be used to obtain fragments descriptors.",
                         choices=['rdkit', 'padel'],
                         default="rdkit")
-    # parser.add_argument("-ths", "--threshold-similarity",
-    #                     help="Threshold for fraction of compared molecules, for features only",
-    #                     type=float,
-    #                     default=-1.0)
+    parser.add_argument("-ths", "--threshold-similarity",
+                        help="Threshold for fraction of compared molecules, for features only",
+                        type=float,
+                        default=-1.0)
     args = parser.parse_args()
     main()
