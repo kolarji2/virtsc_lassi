@@ -9,8 +9,8 @@ from rdkit.ML.Scoring import Scoring
 
 
 #internal modules
-import similarity_an
-import dmm_builder
+import similarity
+import descMatrixBuilder
 import io
 import os.path
 import descriptors
@@ -44,15 +44,15 @@ def compare(input_path_set,output_path,recognize_option,screen_option):
         descriptors.desc_library_load_desc_file(data_frags_csv)
     '''
     #reset similariti lib
-    similarity_an._similarity_library={}
+    similarity._similarity_library={}
     #generate Descriptors-Molecules-Matrix
-    descNames,dmm=dmm_builder.build_matrix(known_ligands_path,screen_option)
+    descNames,dmm=descMatrixBuilder.build_matrix(known_ligands_path, screen_option)
     #compute weighted Descriptors-Molecules-Matrix and local and global weight coefficients
-    [wdmm,weight,dw]=similarity_an.compute_weighted_dmm(dmm)
+    [wdmm,weight,dw]=similarity.compute_weighted_dmm(dmm)
     log.info('Number of analysed descriptors: %i', len(descNames))
     #compute Singular Value decomposition
     k = -1  # use all singular values
-    U,S,VT=dmm_builder.svd(wdmm,k)
+    U,S,VT=descMatrixBuilder.svd(wdmm, k)
     #load tested data set and ligands for identification of correct results
     ligands_set=io.load_Molecules(ligands_path)
     io.create_parent_directory(output_path)
@@ -105,7 +105,7 @@ def compareData(U,S,VT,weight,dw,data_path,descNames,output_stream,screen_option
                 stopwatch=time.clock()
                 percent+=0.3
             molecule=io.next_smile_molecule(mol_stream)
-            cos_max=similarity_an.compute_similarity(U,invS,V,molecule,weight,dw,descNames,screen_option)
+            cos_max=similarity.compute_similarity(U, invS, V, molecule, weight, dw, descNames, screen_option)
             if cos_max == None:
                 log.error("Wrong molecule")
                 continue

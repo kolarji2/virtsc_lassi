@@ -2,11 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
-import time
 import logging
 import json
-import analyzator
 import settings
 import io
 import screen

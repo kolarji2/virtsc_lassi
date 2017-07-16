@@ -7,7 +7,7 @@ import descriptors
 import io
 import features
 from scipy import linalg
-import similarity_an
+import similarity
 
 __name__ = 'virtsc_lassi.dmm_builder'
 __author__ = 'jiri1kolar'
@@ -52,8 +52,9 @@ def build_feature_matrix(file_path,screen_option):
         dictList.append(dict)
         smiles_list.append(smiles)
     dfm=make_matrix(dictList,descNames)
-    
-    [wdfm, weight,dw] = similarity_an.compute_weighted_dmm(np.copy(dfm))
+    screen_option['avg_frac'] = 1.0
+    '''
+    [wdfm, weight,dw] = similarity.compute_weighted_dmm(np.copy(dfm))
     U, S, VT = svd(wdfm, 0)
     V = VT.transpose()
 
@@ -92,7 +93,7 @@ def build_feature_matrix(file_path,screen_option):
     avg_frac=avg_sim/avg_frag
     log.info("Avg similar fragment fraction: %.3f, with %.2f threhold",avg_frac,cos_th)
     screen_option['avg_frac']=avg_frac
-    '''
+
     [wdfm, weight] = similarity_an.compute_weighted_dmm(dfm)
     U, S, VT = svd(wdfm, 0)
     V=VT.transpose()

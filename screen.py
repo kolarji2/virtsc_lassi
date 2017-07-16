@@ -7,7 +7,7 @@ import json
 #local
 import io
 import fnmatch
-import analyzator
+import screenProcessor
 
 __name__ = 'virtsc_lassi.screen'
 __author__ = 'jiri1kolar'
@@ -33,7 +33,7 @@ def screen(directory,format,output_path,recognize_option,screen_option):
     ligands_path = directory + '/ligands.'+format
     data_path = directory + '/data.'+format
     sets_path = [known_ligands_path, data_path, ligands_path]
-    auc = analyzator.compare(sets_path, output_path,recognize_option,screen_option)
+    auc = screenProcessor.compare(sets_path, output_path, recognize_option, screen_option)
     return auc
 
 def recursive_screen(root_data_dir,root_result_dir,recognize_option,screen_option,screen_info):
